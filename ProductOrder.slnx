@@ -3,5 +3,9 @@
     <Build />
     <Deploy />
   </Project>
+  <Project Path="ProductOrder.OrdersServer/ProductOrder.OrdersServer.esproj">
+    <Build />
+    <Deploy />
+  </Project>
   <Project Path="ProductOrder.Server/ProductOrder.Server.csproj" />
 </Solution>
