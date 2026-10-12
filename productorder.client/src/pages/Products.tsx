@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { CircleAlert, LoaderCircle, RefreshCw } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
 import { fetchProducts } from '../features/products/productsSlice';
+import SelectedProducts from '../components/SelectedProducts';
 import type { Product } from '../services/api';
 import type { CartItem } from '../types';
 
@@ -32,13 +33,6 @@ export default function Products({ cartItems, onAddProduct, onContinue }: Produc
         () => products.items.filter((product) => String(product.codeCategory) === selectedCategory),
         [products.items, selectedCategory]
     );
-    const selectedProductsByCategory = categories
-        .map(([code, description]) => ({
-            code,
-            description,
-            items: cartItems.filter(({ product }) => product.codeCategory === code)
-        }))
-        .filter((categoryGroup) => categoryGroup.items.length > 0);
     const numericQuantity = Number(quantity);
     const canAddProduct = Boolean(selectedProduct)
         && Number.isInteger(numericQuantity)
@@ -69,14 +63,14 @@ export default function Products({ cartItems, onAddProduct, onContinue }: Produc
                     <div className="product-selection-row">
                         <label className="selection-field">
                             <span>Category</span>
-                            <select value={selectedCategory} onChange={(event) => { setSelectedCategory(event.target.value); setSelectedProduct(''); }}>
+                            <select name="category" value={selectedCategory} onChange={(event) => { setSelectedCategory(event.target.value); setSelectedProduct(''); }}>
                                 <option value="">Select a category</option>
                                 {categories.map(([code, description]) => <option key={code} value={code}>{description}</option>)}
                             </select>
                         </label>
                         <label className="selection-field">
                             <span>Product</span>
-                            <select value={selectedProduct} onChange={(event) => setSelectedProduct(event.target.value)} disabled={!selectedCategory}>
+                            <select name="product" value={selectedProduct} onChange={(event) => setSelectedProduct(event.target.value)} disabled={!selectedCategory}>
                                 <option value="">Select a product</option>
                                 {categoryProducts.map((product) => <option key={product.codeProduct} value={product.codeProduct}>{product.descriptionProduct}</option>)}
                             </select>
@@ -84,10 +78,11 @@ export default function Products({ cartItems, onAddProduct, onContinue }: Produc
                         <label className="selection-field quantity-field">
                             <span>Quantity</span>
                             <input
-                                type="text"
-                                inputMode="numeric"
-                                pattern="[0-9]*"
-                                maxLength={4}
+                                name="quantity"
+                                type="number"
+                                min={1}
+                                max={1000}
+                                step={1}
                                 value={quantity}
                                 onChange={(event) => {
                                     const value = event.target.value;
@@ -101,27 +96,7 @@ export default function Products({ cartItems, onAddProduct, onContinue }: Produc
                         </button>
                     </div>
 
-                    <section className="selected-products-section" aria-labelledby="selected-products-title">
-                        <div className="section-heading">
-                            <h2 id="selected-products-title">Selected products</h2>
-                        </div>
-                        {selectedProductsByCategory.length === 0 ? (
-                            <p className="selection-empty-state">Products you add will appear here, grouped by category.</p>
-                        ) : (
-                            <div className="selected-products-grid">
-                                {selectedProductsByCategory.map((categoryGroup) => (
-                                    <section className="selected-category" key={categoryGroup.code}>
-                                        <h3>{categoryGroup.description}</h3>
-                                        <ul>
-                                            {categoryGroup.items.map(({ product, quantity: itemQuantity }, index) => (
-                                                <li key={`${product.codeProduct}-${index}`}><span>{product.descriptionProduct}</span><strong>×{itemQuantity}</strong></li>
-                                            ))}
-                                        </ul>
-                                    </section>
-                                ))}
-                            </div>
-                        )}
-                    </section>
+                    <SelectedProducts cartItems={cartItems} />
                     <div className="continue-order-row">
                         <button className="primary-button" type="button" onClick={onContinue} disabled={cartItems.length === 0}>
                             Continue to Order
