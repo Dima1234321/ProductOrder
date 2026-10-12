@@ -1,58 +1,64 @@
-﻿import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import type { Product } from './services/api';
+import type { CartItem } from './types';
+import Order from './pages/Order';
+import Products from './pages/Products';
 import './App.css';
 
-interface Forecast {
-    date: string;
-    temperatureC: number;
-    temperatureF: number;
-    summary: string;
-}
+type Page = 'products' | 'order';
 
 function App() {
-    const [forecasts, setForecasts] = useState<Forecast[]>();
+    const [page, setPage] = useState<Page>('products');
+    const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
-    useEffect(() => {
-        populateWeatherData();
-    }, []);
+    function addProductToCart(product: Product, quantity: number) {
+        setCartItems((items) => {
+            const existingItem = items.find((item) => item.product.codeProduct === product.codeProduct);
+            if (!existingItem) return [...items, { product, quantity }];
 
-    const contents = forecasts === undefined
-        ? <p><em>Loading... Please refresh once the ASP.NET backend has started. See <a href="https://aka.ms/jspsintegrationreact">https://aka.ms/jspsintegrationreact</a> for more details.</em></p>
-        : <table className="table table-striped" aria-labelledby="tableLabel">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Temp. (C)</th>
-                    <th>Temp. (F)</th>
-                    <th>Summary</th>
-                </tr>
-            </thead>
-            <tbody>
-                {forecasts.map(forecast =>
-                    <tr key={forecast.date}>
-                        <td>{forecast.date}</td>
-                        <td>{forecast.temperatureC}</td>
-                        <td>{forecast.temperatureF}</td>
-                        <td>{forecast.summary}</td>
-                    </tr>
-                )}
-            </tbody>
-        </table>;
+            return items.map((item) => item.product.codeProduct === product.codeProduct
+                ? { ...item, quantity: item.quantity + quantity }
+                : item);
+        });
+    }
+
+    function startNewOrder() {
+        setCartItems([]);
+        setPage('products');
+    }
 
     return (
-        <div>
-            <h1 id="tableLabel">Weather forecast</h1>
-            <p>This component demonstrates fetching data from the server.</p>
-            {contents}
-        </div>
-    );
+        <main className="app-shell">
+            <header className="app-header">
+                <button className="brand" type="button" onClick={() => setPage('products')} aria-label="Product Order home">
+                    product<span>order</span>
+                </button>
+                <span className="step-indicator">{page === 'products' ? 'Step 1 of 2' : 'Step 2 of 2'}</span>
+            </header>
 
-    async function populateWeatherData() {
-        const response = await fetch('weatherforecast');
-        if (response.ok) {
-            const data = await response.json();
-            setForecasts(data);
-        }
-    }
+            <div className="content-wrap">
+                <div className="page-heading">
+                    <div className="eyebrow">{page === 'products' ? 'CREATE AN ORDER' : 'ORDER DETAILS'}</div>
+                    <h1>{page === 'products' ? 'Select Products' : 'Order'}</h1>
+                    <p>{page === 'products' ? 'Choose products and quantities for your order.' : 'Enter your details to complete your order.'}</p>
+                </div>
+
+                {page === 'products' ? (
+                    <Products
+                        cartItems={cartItems}
+                        onAddProduct={addProductToCart}
+                        onContinue={() => setPage('order')}
+                    />
+                ) : (
+                    <Order
+                        cartItems={cartItems}
+                        onReturnToProducts={() => setPage('products')}
+                        onStartNewOrder={startNewOrder}
+                    />
+                )}
+            </div>
+        </main>
+    );
 }
 
 export default App;

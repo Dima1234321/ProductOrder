@@ -1,11 +1,68 @@
-﻿#root {
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 2rem;
-    text-align: center;
+.app-shell { min-height: 100vh; }
+.app-header { align-items: center; border-bottom: 1px solid #e4e8ef; display: flex; justify-content: space-between; padding: 18px max(24px, calc((100vw - 980px) / 2)); }
+.brand { background: transparent; border: 0; color: #1c2a3f; cursor: pointer; font: inherit; font-size: 19px; font-weight: 750; letter-spacing: -.7px; padding: 0; }
+.brand span { color: #748196; font-weight: 500; }
+.step-indicator { color: #748196; font-size: 12px; }
+.content-wrap { margin: 0 auto; max-width: 980px; padding: 42px 24px 64px; }
+.page-heading { margin-bottom: 25px; }
+.eyebrow { color: #6784b4; font-size: 10px; font-weight: 750; letter-spacing: 1.1px; margin-bottom: 8px; }
+.page-heading h1 { color: #18263a; font-size: clamp(28px, 4vw, 36px); letter-spacing: -1px; line-height: 1.1; margin: 0; }
+.page-heading p { color: #8390a2; font-size: 14px; margin: 9px 0 0; }
+.data-panel { background: #fff; border: 1px solid #e5e9f0; border-radius: 10px; box-shadow: 0 3px 14px rgba(25,45,75,.035); overflow: hidden; }
+.panel-heading { border-bottom: 1px solid #edf0f4; padding: 20px 22px 17px; }
+.panel-heading h2 { color: #213047; font-size: 15px; font-weight: 680; margin: 0 0 4px; }
+.panel-heading p { color: #909baa; font-size: 12px; margin: 0; }
+.product-selection-row { align-items: end; display: grid; gap: 12px; grid-template-columns: minmax(150px, 1fr) minmax(180px, 1.25fr) minmax(85px, .5fr) auto; padding: 21px 22px 23px; }
+.selection-field { color: #66758a; display: grid; font-size: 12px; font-weight: 650; gap: 7px; min-width: 0; }
+.selection-field select, .selection-field input { background: #fff; border: 1px solid #dce2eb; border-radius: 6px; color: #35445a; font: inherit; font-size: 13px; height: 41px; min-width: 0; padding: 0 11px; width: 100%; }
+.selection-field select:disabled { background: #f6f8fb; color: #a1aab7; cursor: not-allowed; }
+.selection-field select:focus, .selection-field input:focus { border-color: #8caaf0; outline: 3px solid rgba(76,125,242,.12); }
+.primary-button, .secondary-button { align-items: center; border-radius: 6px; cursor: pointer; display: inline-flex; font: inherit; font-size: 12px; font-weight: 650; gap: 7px; height: 41px; justify-content: center; padding: 0 16px; transition: .18s ease; white-space: nowrap; }
+.primary-button { background: #4078f5; border: 1px solid #4078f5; color: #fff; }
+.primary-button:hover:not(:disabled) { background: #3268df; border-color: #3268df; }
+.primary-button:disabled { cursor: not-allowed; opacity: .5; }
+.secondary-button { background: #fff; border: 1px solid #dce2eb; color: #536277; }
+.secondary-button:hover { border-color: #b8c9e5; color: #376ad0; }
+.selected-products-section { border-top: 1px solid #edf0f4; }
+.section-heading { padding: 18px 22px 0; }
+.section-heading h2 { color: #213047; font-size: 14px; font-weight: 680; margin: 0; }
+.selected-products-grid { display: grid; gap: 13px; grid-template-columns: repeat(4, minmax(0, 1fr)); padding: 13px 22px 22px; }
+.selected-category { min-width: 0; }
+.selected-category h3 { align-items: center; background: #fff; border: 1px solid #dce2eb; border-radius: 9px; color: #33435a; display: flex; font-size: 13px; font-weight: 680; justify-content: center; margin: 0; min-height: 50px; padding: 9px 12px; text-align: center; }
+.selected-category ul { background: #f1f4f8; border-radius: 0 0 10px 10px; list-style: none; margin: 4px 4px 0; min-height: 104px; padding: 8px 13px; }
+.selected-category li { align-items: center; color: #5c6a7d; display: flex; font-size: 12px; gap: 10px; justify-content: space-between; padding: 7px 0; }
+.selected-category li:last-child { border-bottom: 0; padding-bottom: 1px; }
+.selected-category li strong { color: #5573aa; flex: 0 0 auto; font-size: 12px; font-weight: 650; }
+.selection-empty-state { color: #98a2b0; font-size: 12px; margin: 0; padding: 14px 22px 22px; }
+.continue-order-row { border-top: 1px solid #edf0f4; display: flex; justify-content: flex-end; padding: 15px 22px; }
+.checkout-form { display: grid; gap: 17px; grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 22px; }
+.checkout-address, .checkout-actions { grid-column: 1 / -1; }
+.checkout-actions { align-items: center; display: flex; justify-content: space-between; padding-top: 4px; }
+.back-button { background: transparent; border: 0; color: #65758b; cursor: pointer; font: inherit; font-size: 12px; padding: 9px 0; }
+.back-button:disabled { cursor: not-allowed; opacity: .5; }
+.checkout-error { background: #fff6f3; border: 1px solid #f1d6cf; border-radius: 6px; color: #a6503b; font-size: 12px; margin: 18px 22px 0; padding: 11px 13px; }
+.order-success { align-items: flex-start; display: flex; flex-direction: column; gap: 8px; padding: 24px 22px; }
+.order-success h2 { color: #213047; font-size: 18px; margin: 0; }
+.order-success p { color: #748196; font-size: 13px; margin: 0 0 10px; }
+.state-panel { align-items: center; color: #7d8da3; display: flex; flex-direction: column; gap: 10px; justify-content: center; min-height: 190px; padding: 24px; text-align: center; }
+.state-panel > svg { color: #7596d6; }
+.error-state > svg { color: #d28a73; }
+.spin { animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 760px) {
+    .content-wrap { padding: 30px 18px 44px; }
+    .product-selection-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .selected-products-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .product-selection-row .primary-button { align-self: end; }
 }
 
-th, td {
-    padding-left: 1rem;
-    padding-right: 1rem;
+@media (max-width: 500px) {
+    .app-header { padding: 15px 18px; }
+    .content-wrap { padding: 26px 14px 36px; }
+    .product-selection-row, .checkout-form { grid-template-columns: 1fr; }
+    .selected-products-grid { grid-template-columns: 1fr; }
+    .product-selection-row .primary-button { width: 100%; }
+    .checkout-address, .checkout-actions { grid-column: auto; }
+    .panel-heading, .product-selection-row, .section-heading, .selection-empty-state, .continue-order-row, .checkout-form, .order-success { padding-left: 16px; padding-right: 16px; }
 }

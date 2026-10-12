@@ -1,12 +1,20 @@
+using Microsoft.EntityFrameworkCore;
+using ProductOrder.Server.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+builder.Services.AddDbContext<ProductsDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("Products")));
 
 var app = builder.Build();
+
+await using (var scope = app.Services.CreateAsyncScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ProductsDbContext>();
+    await db.Database.MigrateAsync();
+}
 
 app.UseDefaultFiles();
 app.MapStaticAssets();

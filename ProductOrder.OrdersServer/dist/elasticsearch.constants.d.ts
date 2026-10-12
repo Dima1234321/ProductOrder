@@ -1,0 +1,1 @@
+export declare const ELASTICSEARCH_CLIENT = "ELASTICSEARCH_CLIENT";
