@@ -8,7 +8,7 @@ This package runs the ProductOrder development/test stack without the source rep
 - Internet access to pull SQL Server and Elasticsearch images
 - Sufficient memory for SQL Server and Elasticsearch
 
-The SQL Server 2022 Linux container requires `linux/amd64`. ARM64 is not supported by this package. SQL Server Developer edition is for development and testing only; do not use this package for production.
+The SQL Server 2022 Linux container requires `linux/amd64`. ARM64 is not supported by this package. SQL Server Developer edition is for development and testing only.
 
 ## Start
 
@@ -53,4 +53,4 @@ docker compose down
 
 ## Source and security notes
 
-The handoff archive contains runtime images, not the C#, TypeScript, or project source files. The frontend must deliver JavaScript to the browser, so users can inspect the built client assets. The development/test configuration uses SQL Server Developer edition and Elasticsearch with security disabled; Elasticsearch is not published outside the internal Compose network. Do not expose the stack to an untrusted network or use it as a production deployment.
+The handoff archive contains runtime images, not the C#, TypeScript, or project source files. The frontend must deliver JavaScript to the browser, so users can inspect the built client assets. The development/test configuration uses SQL Server Developer edition and Elasticsearch with security disabled; Elasticsearch is not published outside the internal Compose network. Do not expose the stack to an untrusted network.
