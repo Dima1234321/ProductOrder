@@ -4,39 +4,26 @@
 # For more information, please see https://aka.ms/containercompat
 
 # This stage is used when running from VS in fast mode (Default for Debug configuration)
-FROM mcr.microsoft.com/dotnet/aspnet:10.0-nanoserver-ltsc2022 AS base
+FROM node:22-bookworm-slim AS node
+
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
 EXPOSE 8080
-EXPOSE 8081
 
-
-# This stage is used to build the service project
-FROM mcr.microsoft.com/dotnet/sdk:10.0-nanoserver-ltsc2022 AS with-node
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+COPY --from=node /usr/local/ /usr/local/
 WORKDIR /src
-RUN curl https://nodejs.org/dist/v18.18.0/node-v18.18.0-win-x64.zip --output node.zip
-RUN tar -xf node.zip
-USER ContainerAdministrator
-RUN setx /M path "%path%;C:\src\node-v18.18.0-win-x64"
-USER ContainerUser
-
-
-FROM with-node AS build
-ARG BUILD_CONFIGURATION=Release
-WORKDIR /src
-COPY ["ProductOrder.Server/ProductOrder.Server.csproj", "ProductOrder.Server/"]
-COPY ["productorder.client/productorder.client.esproj", "productorder.client/"]
-RUN dotnet restore "./ProductOrder.Server/ProductOrder.Server.csproj"
+COPY ProductOrder.Server/ProductOrder.Server.csproj ProductOrder.Server/
+COPY productorder.client/productorder.client.esproj productorder.client/
+RUN dotnet restore ProductOrder.Server/ProductOrder.Server.csproj
 COPY . .
-WORKDIR "/src/ProductOrder.Server"
-RUN dotnet build "./ProductOrder.Server.csproj" -c %BUILD_CONFIGURATION% -o /app/build
+RUN dotnet publish ProductOrder.Server/ProductOrder.Server.csproj \
+    --configuration Release \
+    --output /app/publish \
+    /p:UseAppHost=false \
+    /p:ShouldRunBuildScript=false
 
-# This stage is used to publish the service project to be copied to the final stage
-FROM build AS publish
-ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./ProductOrder.Server.csproj" -c %BUILD_CONFIGURATION% -o /app/publish /p:UseAppHost=false
-
-# This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
-FROM base AS final
+FROM runtime AS final
 WORKDIR /app
-COPY --from=publish /app/publish .
+COPY --from=build /app/publish .
 ENTRYPOINT ["dotnet", "ProductOrder.Server.dll"]

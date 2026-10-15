@@ -2,44 +2,47 @@
 
 ProductOrder is a local development application with a React/TypeScript client, a .NET 10 Products API backed by SQL Server, and a separate NestJS Orders API backed by Elasticsearch.
 
-## Prerequisites
+## Run the whole solution with Docker Compose
 
-- .NET 10 SDK and the `dotnet-ef` tool
-- Node.js 20.11 or later and npm
-- Docker Desktop (for the local Elasticsearch service)
-- SQL Server Express running on `DESKTOP-K7P8UDN\SQLEXPRESS`, or a configured SQL Server connection
+Prerequisite: Docker Desktop configured to use Linux containers. From the repository root, create a local environment file:
 
-The .NET connection string is in `ProductOrder.Server/appsettings.json`; override it with `ConnectionStrings__Products` when needed.
+```powershell
+Copy-Item .env.example .env
+```
 
-## Start the application
+Edit `.env` and replace the sample `MSSQL_SA_PASSWORD` with a unique strong password. Then build and start the complete stack:
 
-1. Start Elasticsearch. The development Compose service persists its data in a named volume and disables Elasticsearch security; do not expose it to untrusted networks.
+```powershell
+docker compose up --build
+```
 
-   ```powershell
-   cd ProductOrder.OrdersServer
-   docker compose up -d
-   Copy-Item .env.example .env
-   npm install
-   ```
+Open the client at `http://localhost:52579`. The Products API is available at `http://localhost:5268/api/products`, the Orders API at `http://localhost:3001`, Elasticsearch at `http://localhost:9200`, and SQL Server at `localhost:1433`. The APIs wait for their database/search dependencies to become healthy; the Products API applies its EF Core migration on startup.
 
-   The Orders API defaults to `http://localhost:3001` and creates the lowercase `orders` index from `orders.mapping.json` at startup. Configure `ELASTICSEARCH_URL`, `ELASTICSEARCH_USERNAME`, `ELASTICSEARCH_PASSWORD`, or `ELASTICSEARCH_INDEX` in `.env` for another cluster. Provide both username and password when connecting to a secured cluster. The requested mapping has one replica; a single-node local cluster can therefore report yellow health while remaining usable.
+All published ports bind to `127.0.0.1`. The local Elasticsearch service has security disabled, so do not change these bindings or expose it to an untrusted network. SQL Server uses the Developer edition, intended only for development and testing. SQL Server and Elasticsearch data persist in named Docker volumes when containers stop.
 
-2. Install client dependencies:
+Useful commands from the repository root:
 
-   ```powershell
-   cd ..\productorder.client
-   npm install
-   ```
+```powershell
+docker compose logs -f
+docker compose down
+```
 
-3. In Visual Studio, set `ProductOrder.Server` as the startup project and start it with the `https` profile. The SPA's Vite development command also starts the NestJS Orders API. Alternatively, start the .NET API from a separate terminal at the repository root:
+`docker compose down` removes the containers but preserves database/search data. To also delete that data, run `docker compose down --volumes`.
 
-   ```powershell
-   dotnet run --project ProductOrder.Server
-   ```
+Ports and image settings can be overridden in `.env`; see `.env.example`. The local `.env` is ignored by Git. The Vite development proxy routes `/api/products` to the .NET API and `/api/orders` to the Orders API. The client checkout form submits customer details and cart items to `POST /api/orders`; saved documents appear on the Orders page. `GET /api/orders` returns the latest documents, and `GET /health` is the Orders API liveness endpoint.
 
-   On first startup, EF Core applies the checked-in migration, creates the `PRODUCTS` database when the SQL login has database-creation permissions, and inserts sample categories and products. The API is available at `http://localhost:5268/api/products`; the SPA is available at `https://localhost:52579`.
+## Run services manually
 
-The Vite development proxy routes `/api/products` to the .NET API and `/api/orders` to `http://localhost:3001`. Set `ORDERS_API_URL` to change the Orders API address. The client checkout form submits customer details and cart items to `POST /api/orders`; saved documents appear on the Orders page. `GET /api/orders` returns the latest documents, and `GET /health` is the Orders API liveness endpoint.
+The Elasticsearch-only Compose setup remains available if you prefer to run the APIs and client outside Docker. From the repository root:
+
+```powershell
+docker compose -f ProductOrder.OrdersServer/docker-compose.yml up -d
+Copy-Item ProductOrder.OrdersServer/.env.example ProductOrder.OrdersServer/.env
+```
+
+Install Node dependencies in `ProductOrder.OrdersServer` and `productorder.client`, then run the NestJS API and Vite client using their npm scripts. Run the .NET API with `dotnet run --project ProductOrder.Server` or start it from Visual Studio using the `https` profile. Configure SQL Server with `ConnectionStrings__Products` if the default local connection in `ProductOrder.Server/appsettings.json` does not apply. In host-based development, the SPA is available at `https://localhost:52579` and the .NET API at `http://localhost:5268`.
+
+When using a secured external Elasticsearch cluster, set `ELASTICSEARCH_URL`, `ELASTICSEARCH_USERNAME`, `ELASTICSEARCH_PASSWORD`, or `ELASTICSEARCH_INDEX` in `ProductOrder.OrdersServer/.env`. Provide both username and password when connecting to a secured cluster. The requested mapping has one replica; a single-node local cluster can therefore report yellow health while remaining usable.
 
 Example order request:
 

@@ -1,0 +1,89 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: Developer
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD:?Set MSSQL_SA_PASSWORD in the root .env file}
+    ports:
+      - "127.0.0.1:${SQLSERVER_PORT:-1433}:1433"
+    volumes:
+      - productorder-sqlserver-data:/var/opt/mssql
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$$MSSQL_SA_PASSWORD" -Q "SELECT 1" -C -b
+      interval: 10s
+      timeout: 5s
+      retries: 15
+      start_period: 30s
+    restart: unless-stopped
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTICSEARCH_VERSION:-9.1.0}
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+      ES_JAVA_OPTS: ${ELASTICSEARCH_JAVA_OPTS:--Xms1g -Xmx1g}
+    ports:
+      - "127.0.0.1:${ELASTICSEARCH_PORT:-9200}:9200"
+    volumes:
+      - productorder-elasticsearch-data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:9200 >/dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+      start_period: 30s
+    restart: unless-stopped
+
+  products-api:
+    build:
+      context: .
+      dockerfile: ProductOrder.Server/Dockerfile
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__Products: "Server=sqlserver,1433;Database=PRODUCTS;User Id=sa;Password=${MSSQL_SA_PASSWORD:?Set MSSQL_SA_PASSWORD in the root .env file};TrustServerCertificate=True;MultipleActiveResultSets=True"
+    ports:
+      - "127.0.0.1:${PRODUCTS_API_PORT:-5268}:8080"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    restart: unless-stopped
+
+  orders-api:
+    build:
+      context: ProductOrder.OrdersServer
+      dockerfile: Dockerfile
+    environment:
+      PORT: 3001
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      ELASTICSEARCH_USERNAME: ${ELASTICSEARCH_USERNAME:-}
+      ELASTICSEARCH_PASSWORD: ${ELASTICSEARCH_PASSWORD:-}
+      ELASTICSEARCH_INDEX: ${ELASTICSEARCH_INDEX:-orders}
+    ports:
+      - "127.0.0.1:${ORDERS_API_PORT:-3001}:3001"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    restart: unless-stopped
+
+  client:
+    build:
+      context: productorder.client
+      dockerfile: Dockerfile
+    environment:
+      VITE_HTTPS: "false"
+      DEV_SERVER_PORT: 52579
+      ASPNETCORE_URLS: http://products-api:8080
+      ORDERS_API_URL: http://orders-api:3001
+    ports:
+      - "127.0.0.1:${CLIENT_PORT:-52579}:52579"
+    depends_on:
+      - products-api
+      - orders-api
+    restart: unless-stopped
+
+volumes:
+  productorder-sqlserver-data:
+  productorder-elasticsearch-data:
