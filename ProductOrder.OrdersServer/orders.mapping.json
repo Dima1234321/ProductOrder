@@ -7,14 +7,12 @@
     "properties": {
       "first_name": {
         "type": "text",
-        "index":  true,
         "fields": {
           "keyword": { "type": "keyword", "ignore_above": 256 }
         }
       },
       "last_name": {
         "type": "text",
-        "index": true,
         "fields": {
           "keyword": {
             "type": "keyword",
@@ -26,7 +24,6 @@
         "type": "text"
       },
       "mail": {
-        "index": true,
         "type": "keyword"
       },
       "datetime": {

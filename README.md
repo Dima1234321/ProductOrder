@@ -2,6 +2,7 @@
 
 ProductOrder is a local development application with a React/TypeScript client, a .NET 10 Products API backed by SQL Server, and a separate NestJS Orders API backed by Elasticsearch.
 
+
 ## Run the whole solution with Docker Compose
 
 Prerequisite: Docker Desktop configured to use Linux containers. From the repository root, create a local environment file:
@@ -47,17 +48,24 @@ When using a secured external Elasticsearch cluster, set `ELASTICSEARCH_URL`, `E
 Example order request:
 
 ```json
-{
-  "first_name": "Jane",
-  "last_name": "Doe",
-  "address": "123 Main Street, Apt 4B, New York, NY",
-  "mail": "jane.doe@example.com",
-  "items": [
+ {
+  "first_name" : "Moshe",
+  "last_name" : "Israel",
+  "address" : "Kikar ha-Medina 1",
+  "mail" : "mail@gmail.com",
+  "datetime" : "2026-10-12T19:08:16.802Z",
+  "items" : [
     {
-      "code_product": "PROD-001",
-      "code_category": "CAT-TECH",
-      "descr_product": "Wireless Mechanical Keyboard",
-      "quantity": 1
+      "code_product" : "2",
+      "code_category" : "1",
+      "descr_product" : "Milk 3%",
+      "quantity" : 3
+    },
+    {
+      "code_product" : "12",
+      "code_category" : "4",
+      "descr_product" : "Onion",
+      "quantity" : 4
     }
   ]
 }
