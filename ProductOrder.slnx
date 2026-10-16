@@ -5,7 +5,7 @@
   </Project>
   <Project Path="ProductOrder.OrdersServer/ProductOrder.OrdersServer.esproj">
     <Build />
-    <Deploy Solution="Release|*" />
+    <Deploy />
   </Project>
   <Project Path="ProductOrder.Server/ProductOrder.Server.csproj" />
 </Solution>
