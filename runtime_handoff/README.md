@@ -5,6 +5,7 @@ This package runs the ProductOrder development/test stack without the source rep
 ## Requirements
 
 - Docker Desktop with Linux containers on Windows x64, or Docker Engine on Linux x64
+- Before running any commands ensure that Docker Desktop is open and running
 - Internet access to pull SQL Server and Elasticsearch images
 - Sufficient memory for SQL Server and Elasticsearch
 
@@ -15,22 +16,14 @@ The SQL Server 2022 Linux container requires `linux/amd64`. ARM64 is not support
 1. Load the ProductOrder application images:
 
    ```powershell
+   Copy-Item .env.example .env
    docker load --input productorder-runtime-images-linux-amd64.tar
    ```
 
-2. Create the local settings file and replace the sample SQL Server password:
+3. Start the app (if necessary, it will also pull in dependencies for SQL Server and Elasticsearch):
 
    ```powershell
-   Copy-Item .env.example .env
-   notepad .env
-   ```
-
-3. Pull the SQL Server and Elasticsearch dependencies and start the app:
-
-   ```powershell
-   docker compose pull sqlserver elasticsearch
-   docker compose up -d
-   docker compose ps
+   docker compose up -d --no-build
    ```
 
 4. Open `http://localhost:52579`.

@@ -2,6 +2,9 @@
 
 ProductOrder is a local development application with a React/TypeScript client, a .NET 10 Products API backed by SQL Server, and a separate NestJS Orders API backed by Elasticsearch.
 
+## Plug and Play
+
+A runtime_handoff directory is included for quick runtime deployment without the source repository. See runtime_handoff/README.md for instructions and prebuilt images to run the full stack via Docker with minimal setup.
 
 ## Run the whole solution with Docker Compose
 
@@ -9,11 +12,6 @@ Prerequisite: Docker Desktop configured to use Linux containers. From the reposi
 
 ```powershell
 Copy-Item .env.example .env
-```
-
-Edit `.env` and replace the sample `MSSQL_SA_PASSWORD` with a unique strong password. Then build and start the complete stack:
-
-```powershell
 docker compose up --build
 ```
 
@@ -37,13 +35,20 @@ Ports and image settings can be overridden in `.env`; see `.env.example`. The lo
 The Elasticsearch-only Compose setup remains available if you prefer to run the APIs and client outside Docker. From the repository root:
 
 ```powershell
-docker compose -f ProductOrder.OrdersServer/docker-compose.yml up -d
 Copy-Item ProductOrder.OrdersServer/.env.example ProductOrder.OrdersServer/.env
+docker compose -f ProductOrder.OrdersServer/docker-compose.yml up -d
 ```
 
-Install Node dependencies in `ProductOrder.OrdersServer` and `productorder.client`, then run the NestJS API and Vite client using their npm scripts. Run the .NET API with `dotnet run --project ProductOrder.Server` or start it from Visual Studio using the `https` profile. Configure SQL Server with `ConnectionStrings__Products` if the default local connection in `ProductOrder.Server/appsettings.json` does not apply. In host-based development, the SPA is available at `https://localhost:52579` and the .NET API at `http://localhost:5268`.
+There should also be a reachable SQL Server instance and a valid connection string in ProductOrder.Server/appsettings.json (key "ConnectionStrings:Products"). If the configured SQL Server instance is reachable and the connection user has permission to create a database, EF migrations in this project will create the PRODUCTS database and schema automatically; otherwise you must create the PRODUCTS database yourself (or run the provided SQL script) before applying migrations.
 
-When using a secured external Elasticsearch cluster, set `ELASTICSEARCH_URL`, `ELASTICSEARCH_USERNAME`, `ELASTICSEARCH_PASSWORD`, or `ELASTICSEARCH_INDEX` in `ProductOrder.OrdersServer/.env`. Provide both username and password when connecting to a secured cluster. The requested mapping has one replica; a single-node local cluster can therefore report yellow health while remaining usable.
+
+Install Node dependencies in `ProductOrder.OrdersServer` and `productorder.client` then Run ProductOrder.Server:
+```powershell
+dotnet run --project ProductOrder.Server
+```
+`dotnet run` starts the Products (.NET) API; automatic launching of the client and Orders API happens because of the SPA proxy configuration in `ProductOrder.Server.csproj` and the client `dev` script using `concurrently`. If needed run the NestJS API and Vite client using their npm scripts. 
+
+Open the client at `https://localhost:52579`. The Products API is available at `http://localhost:5268/api/products`, the Orders API at `http://localhost:3001`, Elasticsearch at `http://localhost:9200`. The APIs wait for their database/search dependencies to become healthy; the Products API applies its EF Core migration on startup.
 
 Example order request:
 
@@ -72,6 +77,20 @@ Example order request:
 ```
 
 The API assigns `datetime` in UTC when an order is saved. The Elasticsearch mapping is defined in `ProductOrder.OrdersServer/orders.mapping.json` and uses snake_case field names with nested order items.
+
+## Run and edit code by Visual Studio 2026 or VSCode, Elasticsearch run by Docker
+Run Elasticsearch:
+```powershell
+Copy-Item ProductOrder.OrdersServer/.env.example ProductOrder.OrdersServer/.env
+docker compose -f ProductOrder.OrdersServer/docker-compose.yml up -d
+```
+There should also be a reachable SQL Server instance and a valid connection string in ProductOrder.Server/appsettings.json (key "ConnectionStrings:Products"). If the configured SQL Server instance is reachable and the connection user has permission to create a database, EF migrations in this project will create the PRODUCTS database and schema automatically; otherwise you must create the PRODUCTS database yourself (or run the provided SQL script) before applying migrations.
+
+Set ProductOrder.Server as startup project. Build Solution (It will set up NuGet packages and npm dependencies):
+![alt text](image.png)
+
+#### Configure the client to launch in Chrome 
+![alt text](image-1.png)
 
 ## Database migrations
 
