@@ -53,7 +53,22 @@ export default function Order({ cartItems, onReturnToProducts, onStartNewOrder }
             <form className="checkout-form" onSubmit={submitOrder}>
                 <label className="selection-field"><span>First name {!orderSubmitted && <span className="required-indicator" aria-hidden="true">*</span>}</span><input name="firstName" required maxLength={128} autoComplete="given-name" value={customer.firstName} readOnly={orderSubmitted} onChange={(event) => setCustomer({ ...customer, firstName: event.target.value })} /></label>
                 <label className="selection-field"><span>Last name {!orderSubmitted && <span className="required-indicator" aria-hidden="true">*</span>}</span><input name="lastName" required maxLength={128} autoComplete="family-name" value={customer.lastName} readOnly={orderSubmitted} onChange={(event) => setCustomer({ ...customer, lastName: event.target.value })} /></label>
-                <label className="selection-field"><span>Email {!orderSubmitted && <span className="required-indicator" aria-hidden="true">*</span>}</span><input name="email" required type="email" maxLength={254} autoComplete="email" value={customer.mail} readOnly={orderSubmitted} onChange={(event) => setCustomer({ ...customer, mail: event.target.value })} /></label>
+                <label className="selection-field"><span>Email {!orderSubmitted && <span className="required-indicator" aria-hidden="true">*</span>}</span>
+                    <input name="email" 
+                        required 
+                        pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$"
+                        title="Enter an email address with a domain extension, such as name@example.com."
+                        type="email"                         
+                        maxLength={254} 
+                        autoComplete="email" 
+                        value={customer.mail} 
+                        readOnly={orderSubmitted} 
+                        onChange={(event) => setCustomer({ ...customer, mail: event.target.value })} />        
+                </label>
+
+
+
+
                 <label className="selection-field checkout-address"><span>Address {!orderSubmitted && <span className="required-indicator" aria-hidden="true">*</span>}</span><input name="address" required maxLength={500} autoComplete="street-address" value={customer.address} readOnly={orderSubmitted} onChange={(event) => setCustomer({ ...customer, address: event.target.value })} /></label>
                 <SelectedProducts cartItems={cartItems} />
                 {!orderSubmitted && (

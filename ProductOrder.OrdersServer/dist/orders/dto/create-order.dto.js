@@ -13,6 +13,7 @@ exports.CreateOrderDto = void 0;
 const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
 const create_order_item_dto_1 = require("./create-order-item.dto");
+const trimString = ({ value }) => typeof value === 'string' ? value.trim() : value;
 class CreateOrderDto {
     first_name;
     last_name;
@@ -22,24 +23,34 @@ class CreateOrderDto {
 }
 exports.CreateOrderDto = CreateOrderDto;
 __decorate([
+    (0, class_transformer_1.Transform)(trimString),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     (0, class_validator_1.MaxLength)(128),
+    (0, class_validator_1.Matches)(/^[\p{L}\p{M}]+(?:[ '\u2019-][\p{L}\p{M}]+)*$/u, {
+        message: 'first_name contains unsupported characters or spacing.',
+    }),
     __metadata("design:type", String)
 ], CreateOrderDto.prototype, "first_name", void 0);
 __decorate([
+    (0, class_transformer_1.Transform)(trimString),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     (0, class_validator_1.MaxLength)(128),
+    (0, class_validator_1.Matches)(/^[\p{L}\p{M}]+(?:[ '\u2019-][\p{L}\p{M}]+)*$/u, {
+        message: 'last_name contains unsupported characters or spacing.',
+    }),
     __metadata("design:type", String)
 ], CreateOrderDto.prototype, "last_name", void 0);
 __decorate([
+    (0, class_transformer_1.Transform)(trimString),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     (0, class_validator_1.MaxLength)(500),
     __metadata("design:type", String)
 ], CreateOrderDto.prototype, "address", void 0);
 __decorate([
+    (0, class_transformer_1.Transform)(trimString),
     (0, class_validator_1.IsEmail)(),
     (0, class_validator_1.MaxLength)(254),
     __metadata("design:type", String)
@@ -47,6 +58,7 @@ __decorate([
 __decorate([
     (0, class_validator_1.IsArray)(),
     (0, class_validator_1.ArrayMinSize)(1),
+    (0, class_validator_1.ArrayMaxSize)(100),
     (0, class_validator_1.ValidateNested)({ each: true }),
     (0, class_transformer_1.Type)(() => create_order_item_dto_1.CreateOrderItemDto),
     __metadata("design:type", Array)

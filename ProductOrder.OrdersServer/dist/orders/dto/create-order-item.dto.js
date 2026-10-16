@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateOrderItemDto = void 0;
 const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
+const trimString = ({ value }) => typeof value === 'string' ? value.trim() : value;
 class CreateOrderItemDto {
     code_product;
     code_category;
@@ -20,18 +21,21 @@ class CreateOrderItemDto {
 }
 exports.CreateOrderItemDto = CreateOrderItemDto;
 __decorate([
+    (0, class_transformer_1.Transform)(trimString),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     (0, class_validator_1.MaxLength)(128),
     __metadata("design:type", String)
 ], CreateOrderItemDto.prototype, "code_product", void 0);
 __decorate([
+    (0, class_transformer_1.Transform)(trimString),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     (0, class_validator_1.MaxLength)(128),
     __metadata("design:type", String)
 ], CreateOrderItemDto.prototype, "code_category", void 0);
 __decorate([
+    (0, class_transformer_1.Transform)(trimString),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     (0, class_validator_1.MaxLength)(256),

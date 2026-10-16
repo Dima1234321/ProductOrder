@@ -77,6 +77,36 @@ export async function createOrder(order: CreateOrderRequest): Promise<Order> {
     });
 
     if (!response.ok) {
+
+        if (response.status === 400) {
+            let messages: string[] = [];
+
+            try {
+                const body = await response.json() as { message?: unknown };
+                if (Array.isArray(body.message)) {
+                    messages = body.message.filter((message): message is string =>
+                        typeof message === 'string'
+                    );
+                } else if (typeof body.message === 'string') {
+                    messages = [body.message];
+                }
+            } catch {
+                // Use the friendly fallback if the response isn't JSON.
+            }
+
+            if (messages.some((message) => /\b(mail|email)\b/i.test(message))) {
+                throw new Error(
+                    'Please enter a complete email address, including a domain extension (for example, name@example.com).'
+                );
+            }
+
+            throw new Error(
+                'Some order details are invalid. Please review the information and try again.'
+            );
+        }
+
+        //throw new Error('We couldn’t submit your order right now. Please try again.');
+
         throw new Error(`Order submission failed (${response.status}).`);
     }
 
